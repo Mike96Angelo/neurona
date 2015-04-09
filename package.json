@@ -1,0 +1,32 @@
+{
+  "name": "neurona",
+  "version": "0.0.0",
+  "description": "A simple and extenable neural network library.",
+  "main": "neurona.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mike96Angelo/neurona.git"
+  },
+  "keywords": [
+    "neuron",
+    "neural",
+    "net",
+    "network",
+    "brain",
+    "learning",
+    "ai",
+    "intelligence"
+  ],
+  "author": "Michaelangelo Jong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mike96Angelo/neurona/issues"
+  },
+  "homepage": "https://github.com/Mike96Angelo/neurona",
+  "dependencies": {
+    "generate-js": "^2.0.4"
+  }
+}
