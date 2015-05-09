@@ -6,6 +6,23 @@ function assert(con, mes) {
     }
 }
 
+function Connection(outputNeuron, inputNeuron) {
+    this.deltaWeight = 0;
+    this.inputNeuron = inputNeuron;
+    this.outputNeuron = outputNeuron;
+    this.weight = Math.random()>=0.5 ? Math.random() : 0-Math.random(); // for now
+}
+
+Connection.prototype = {
+    toJSON: function () {
+        return {
+            deltaWeight: this.deltaWeight,
+            weight: this.weight,
+        };
+    },
+};
+
+
 function Neuron() {
     this._inputs = [];
     this._outputs = [];
@@ -14,18 +31,20 @@ function Neuron() {
 }
 
 Neuron.prototype = {
+    toJSON: function () {
+        return {
+            _inputs: this._inputs,
+            gradient: this.gradient,
+            outputVal: this.outputVal,
+        };
+    },
     eta: 0.15,  // [0..1] net training rate
     alpha: 0.5, // [0..n] multiplier of last weight change (momentum)
 
     addInput: function addInput(inputNeuron) {
         assert(inputNeuron instanceof Neuron, 'bad type inputNeuron.');
 
-        var conection = {
-            outputNeuron : this,
-            inputNeuron : inputNeuron,
-            weight : Math.random()>=0.5 ? Math.random() : 0-Math.random(), // for now
-            deltaWeight : 0,
-        };
+        var conection = new Connection(this, inputNeuron);
 
         this._inputs.push(conection);
 
@@ -122,7 +141,41 @@ function Net(netLayout /* [inputs, h1s, h2s,...hns, outputs] */) {
     }
 }
 
+Net.from = function (data) {
+    var n = [];
+    for (var i = 0; i < data.length; i++) {
+        n.push(data[i].length-1);
+    }
+    var net  = new Net(n);
+
+    layers = net._netLayers;
+
+    for (var i = data.length - 1; i >= 0; i--) {
+        var netLayer = layers[i];
+        var dataLayer = data[i];
+        for (var j = dataLayer.length - 1; j >= 0; j--) {
+            var dataNeuron = dataLayer[j];
+            var netNeuron = netLayer[j];
+
+            netNeuron.gradient = dataNeuron.gradient;
+            netNeuron.outputVal = dataNeuron.outputVal;
+
+            for (var k = dataNeuron._inputs.length - 1; k >= 0; k--) {
+                var dataConnection = dataNeuron._inputs[k];
+                var netConnection = netNeuron._inputs[k];
+
+                netConnection.deltaWeight = dataConnection.deltaWeight;
+                netConnection.weight = dataConnection.weight;
+            }
+        }
+    }
+    return net;
+};
+
 Net.prototype = {
+    toJSON: function () {
+        return this._netLayers;
+    },
     feedForward: function feedForward(inputs) {
         var netLayers = this._netLayers;
         assert(inputs.length === netLayers[0].length - 1, 'bad input amount.');
