@@ -264,5 +264,5 @@ Net.prototype = {
     }
 };
 
-window.Net = Net;
+module.exports = Net;
 }())
